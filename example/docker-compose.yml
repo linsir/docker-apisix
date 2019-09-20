@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 services:
   apisix:
@@ -7,8 +7,10 @@ services:
       dockerfile: alpine/Dockerfile
       args:
         APISIX_GITHUB_REPO: https://github.com/iresty/apisix
-        APISIX_VERSION: v0.6
+        APISIX_VERSION: v0.7
         APISIX_DOWNLOAD_SHA256: SKIP
+        APISIX_DOWNLOAD_URL: http://182.151.51.74:8000/apisix/v0.7.zip
+        APISIX_DASHBOARD_BUILTDOWNLOAD_URL: http://182.151.51.74:8000/apisix/a0b49ae9f75b62b6dd1215a5a42074bbaef685ed.zip
     restart: always
     volumes:
       - ./apisix_log:/usr/local/apisix/logs
@@ -18,7 +20,7 @@ services:
     network_mode: host
 
   etcd:
-    image: gcr.io/etcd-development/etcd
+    image: gcr.azk8s.cn/etcd-development/etcd
     command: /usr/local/bin/etcd --advertise-client-urls http://0.0.0.0:2379 --listen-client-urls http://0.0.0.0:2379
     restart: always
     volumes:

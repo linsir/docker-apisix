@@ -15,24 +15,24 @@ MAINTAINER vkill <vkill.net@gmail.com>
 ARG APISIX_VERSION=v0.7
 ENV APISIX_VERSION=${APISIX_VERSION}
 ARG APISIX_GITHUB_REPO=https://github.com/iresty/apisix
-ENV APISIX_DOWNLOAD_URL ${APISIX_GITHUB_REPO}/archive/${APISIX_VERSION}.zip
+ARG APISIX_DOWNLOAD_URL=${APISIX_GITHUB_REPO}/archive/${APISIX_VERSION}.zip
 ARG APISIX_DOWNLOAD_SHA256=98900a5d43ee637a578059602a443668ae1318045dabacf34efad885ec9d3029
 ENV APISIX_DOWNLOAD_SHA256=${APISIX_DOWNLOAD_SHA256}
 
 ARG APISIX_DASHBOARD_BUILT_VERSION=a0b49ae9f75b62b6dd1215a5a42074bbaef685ed
 ENV APISIX_DASHBOARD_BUILT_VERSION=${APISIX_DASHBOARD_BUILT_VERSION}
-ENV APISIX_DASHBOARD_BUILTDOWNLOAD_URL https://github.com/iresty/apisix_dashboard_built/archive/${APISIX_DASHBOARD_BUILT_VERSION}.zip
+ARG APISIX_DASHBOARD_BUILTDOWNLOAD_URL=https://github.com/iresty/apisix_dashboard_built/archive/${APISIX_DASHBOARD_BUILT_VERSION}.zip
 ARG APISIX_DASHBOARD_BUILTDOWNLOAD_SHA256=SKIP
 ENV APISIX_DASHBOARD_BUILTDOWNLOAD_SHA256=${APISIX_DASHBOARD_BUILTDOWNLOAD_SHA256}
 
 RUN set -ex \
-  \
-  # && sed -i 's!dl-cdn.alpinelinux.org!mirrors.aliyun.com!' /etc/apk/repositories \
-  \
-  && apk add --no-cache --virtual .rundeps \
+    \
+    && sed -i 's!dl-cdn.alpinelinux.org!mirrors.aliyun.com!' /etc/apk/repositories \
+    \
+    && apk add --no-cache --virtual .rundeps \
     curl \
-  \
-  && apk add --no-cache --virtual .builddeps \
+    \
+    && apk add --no-cache --virtual .builddeps \
     unzip \
     build-base \
     make \
@@ -43,46 +43,46 @@ RUN set -ex \
     libtool \
     pkgconfig \
     cmake \
-  \
-  && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/bin/lua \
-  && mkdir -p /usr/local/lib/pkgconfig \
-  && mkdir -p /usr/local/include \
-  && ln -sf /usr/local/openresty/pcre/lib/libpcre.so /usr/local/lib/libpcre.so \
-  && ln -sf /usr/local/openresty/pcre/lib/pkgconfig/libpcre.pc /usr/local/lib/pkgconfig/libpcre.pc \
-  && ln -sf /usr/local/openresty/pcre/include/pcre.h /usr/local/include/pcre.h \
-  \
-  && wget -O apisix.zip "${APISIX_DOWNLOAD_URL}" \
-  && [[ "${APISIX_DOWNLOAD_SHA256}" = "SKIP" ]] && echo "SKIP" || (echo "${APISIX_DOWNLOAD_SHA256} *apisix.zip" | sha256sum -c -) \
-  \
-  && mkdir -p /usr/src \
-  && unzip apisix.zip -d /usr/src \
-  && rm apisix.zip \
-  \
-  && cd "/usr/src/apisix-`echo ${APISIX_VERSION} | sed 's/^v//'`" \
-  \
-  && ( \
+    \
+    && ln -sf /usr/local/openresty/luajit/bin/luajit /usr/bin/lua \
+    && mkdir -p /usr/local/lib/pkgconfig \
+    && mkdir -p /usr/local/include \
+    && ln -sf /usr/local/openresty/pcre/lib/libpcre.so /usr/local/lib/libpcre.so \
+    && ln -sf /usr/local/openresty/pcre/lib/pkgconfig/libpcre.pc /usr/local/lib/pkgconfig/libpcre.pc \
+    && ln -sf /usr/local/openresty/pcre/include/pcre.h /usr/local/include/pcre.h \
+    \
+    && wget -O apisix.zip "${APISIX_DOWNLOAD_URL}" \
+    && [[ "${APISIX_DOWNLOAD_SHA256}" = "SKIP" ]] && echo "SKIP" || (echo "${APISIX_DOWNLOAD_SHA256} *apisix.zip" | sha256sum -c -) \
+    \
+    && mkdir -p /usr/src \
+    && unzip apisix.zip -d /usr/src \
+    && rm apisix.zip \
+    \
+    && cd "/usr/src/apisix-`echo ${APISIX_VERSION} | sed 's/^v//'`" \
+    \
+    && ( \
     [[ -f "rockspec/apisix-`echo ${APISIX_VERSION} | sed 's/^v//'`-0.rockspec" ]] \
     && luarocks install --lua-dir=/usr/local/openresty/luajit "rockspec/apisix-`echo ${APISIX_VERSION} | sed 's/^v//'`-0.rockspec" --tree=deps --only-deps --local \
     || make dev \
-  ) \
-  && make install \
-  && cp -r deps /usr/local/apisix/ \
-  && sed -i '/pcall(require, "cjson")$/,/^end$/s/return$/-- return/' /usr/bin/apisix \
-  \
-  && wget -O apisix_dashboard_built.zip "${APISIX_DASHBOARD_BUILTDOWNLOAD_URL}" \
-  && [[ "${APISIX_DASHBOARD_BUILTDOWNLOAD_SHA256}" = "SKIP" ]] && echo "SKIP" || (echo "${APISIX_DASHBOARD_BUILTDOWNLOAD_SHA256} *apisix_dashboard_built.zip" | sha256sum -c -) \
-  \
-  && mkdir -p /usr/src \
-  && unzip apisix_dashboard_built.zip -d /usr/src \
-  && rm apisix_dashboard_built.zip \
-  \
-  && rm -rf /usr/local/apisix/dashboard \
-  && mv "/usr/src/apisix_dashboard_built-`echo ${APISIX_DASHBOARD_BUILT_VERSION} | sed 's/^v//'`" /usr/local/apisix/dashboard \
-  \
-  && cd / \
-  && rm -r "/usr/src/apisix-`echo ${APISIX_VERSION} | sed 's/^v//'`" \
-  \
-  && apk del .builddeps
+    ) \
+    && make install \
+    && cp -r deps /usr/local/apisix/ \
+    && sed -i '/pcall(require, "cjson")$/,/^end$/s/return$/-- return/' /usr/bin/apisix \
+    \
+    && wget -O apisix_dashboard_built.zip "${APISIX_DASHBOARD_BUILTDOWNLOAD_URL}" \
+    && [[ "${APISIX_DASHBOARD_BUILTDOWNLOAD_SHA256}" = "SKIP" ]] && echo "SKIP" || (echo "${APISIX_DASHBOARD_BUILTDOWNLOAD_SHA256} *apisix_dashboard_built.zip" | sha256sum -c -) \
+    \
+    && mkdir -p /usr/src \
+    && unzip apisix_dashboard_built.zip -d /usr/src \
+    && rm apisix_dashboard_built.zip \
+    \
+    && rm -rf /usr/local/apisix/dashboard \
+    && mv "/usr/src/apisix_dashboard_built-`echo ${APISIX_DASHBOARD_BUILT_VERSION} | sed 's/^v//'`" /usr/local/apisix/dashboard \
+    \
+    && cd / \
+    && rm -r "/usr/src/apisix-`echo ${APISIX_VERSION} | sed 's/^v//'`" \
+    \
+    && apk del .builddeps
 
 WORKDIR /usr/local/apisix
 
