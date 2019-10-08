@@ -2,15 +2,9 @@ version: "3"
 
 services:
   apisix:
-    build:
-      context: ./..
-      dockerfile: alpine/Dockerfile
-      args:
-        APISIX_GITHUB_REPO: https://github.com/iresty/apisix
-        APISIX_VERSION: v0.7
-        APISIX_DOWNLOAD_SHA256: SKIP
-        APISIX_DOWNLOAD_URL: http://182.151.51.74:8000/apisix/v0.7.zip
-        APISIX_DASHBOARD_BUILTDOWNLOAD_URL: http://182.151.51.74:8000/apisix/a0b49ae9f75b62b6dd1215a5a42074bbaef685ed.zip
+    image: apisix
+    # container_name: apisix
+    command: sleep 86400
     restart: always
     volumes:
       - ./apisix_log:/usr/local/apisix/logs
@@ -21,6 +15,7 @@ services:
 
   etcd:
     image: gcr.azk8s.cn/etcd-development/etcd
+    container_name: apisix-etcd
     command: /usr/local/bin/etcd --advertise-client-urls http://0.0.0.0:2379 --listen-client-urls http://0.0.0.0:2379
     restart: always
     volumes:
@@ -34,6 +29,7 @@ services:
 
   web1:
     image: ruby:2-alpine
+    container_name: apisix-web1
     command: sh -c "mkdir -p /tmp/www && echo 'web1' > /tmp/www/web1.txt && ruby -run -ehttpd /tmp/www -p8000"
     restart: always
     ports:
@@ -43,6 +39,7 @@ services:
 
   web2:
     image: ruby:2-alpine
+    container_name: apisix-web2
     command: sh -c "mkdir -p /tmp/www && echo 'web2' > /tmp/www/web2.txt && ruby -run -ehttpd /tmp/www -p8000"
     restart: always
     ports:
