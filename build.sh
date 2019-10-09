@@ -50,11 +50,11 @@ main() {
 
     if [ "$upload" = "true" ]
     then
-        docker tag apisix:${APISIX_VERSION}-{$TYPE} linsir/apisix:${APISIX_VERSION}
-        docker tag apisix:${APISIX_VERSION}-{$TYPE} linsir/apisix:${APISIX_VERSION}-{$TYPE}
-        docker tag apisix:${APISIX_VERSION}-{$TYPE} linsir/apisix:latest
+        docker tag apisix:${APISIX_VERSION}-${TYPE} linsir/apisix:${APISIX_VERSION}
+        docker tag apisix:${APISIX_VERSION}-${TYPE} linsir/apisix:${APISIX_VERSION}-${TYPE}
+        docker tag apisix:${APISIX_VERSION}-${TYPE} linsir/apisix:latest
         docker push linsir/apisix:${APISIX_VERSION}
-        docker push linsir/apisix:${APISIX_VERSION}-{$TYPE}
+        docker push linsir/apisix:${APISIX_VERSION}-${TYPE}
         docker push linsir/apisix:latest
     fi
 }
